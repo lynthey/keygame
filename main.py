@@ -44,18 +44,23 @@ def countdown():
     print(" GO!\n")
     time.sleep(0.3)
 
-
-def getch():
-    """エンター不要で1文字取得"""
-    fd = sys.stdin.fileno()
-    old = termios.tcgetattr(fd)
-    try:
-        tty.setraw(fd)
-        ch = sys.stdin.read(1)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old)
-    return ch
-
+if sys.platform == "win32":
+    import msvcrt
+    def getch():
+        """Windows用：Enter不要で1文字取得"""
+        return msvcrt.getch().decode()
+else:
+    import tty, termios
+    def getch():
+        """macOS/Linux用：Enter不要で1文字取得"""
+        fd = sys.stdin.fileno()
+        old = termios.tcgetattr(fd)
+        try:
+            tty.setraw(fd)
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old)
+        return ch
 
 def play_game():
     letters = list(string.ascii_uppercase)
