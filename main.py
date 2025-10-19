@@ -5,31 +5,33 @@ import random
 import string
 import sys
 
-SAVE_FILE = "scores.json"
+SAVE_DATA = "scores.json"
 
 
 def load_scores():
-    if not os.path.exists(SAVE_FILE):
+    if not os.path.exists(SAVE_DATA):
         return []
-    with open(SAVE_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    f = open(SAVE_DATA, "r", encoding="utf-8")
+    return json.load(f)
 
-
-def save_score(name, score):
+def save_score(name, newscore):
     scores = load_scores()
-    scores.append({"name": name, "score": score})
+    scores.append({"name": name, "score": newscore})
     scores = sorted(scores, key=lambda x: x["score"])[:10]
-    with open(SAVE_FILE, "w", encoding="utf-8") as f:
-        json.dump(scores, f, ensure_ascii=False, indent=2)
+    f = open(SAVE_DATA, "w", encoding="utf-8")
+    json.dump(scores, f, ensure_ascii=False, indent=2)
 
+def clear_screen():
+    os.system("clear" if os.name == "posix" else "cls")
 
 def show_title():
-    print("=" * 50)
-    print("           TYPE RACE - A〜Z SPEED GAME")
-    print("=" * 50)
+    clear_screen()
+    print("=-" * 22)
+    print("           TIME ATACK A to Z")
+    print("=-" * 22)
     scores = load_scores()
     print("\nTOP 3 SCORES:")
-    for i, s in enumerate(scores[:3], start=1):
+    for i, s in enumerate(scores, start=1):
         print(f" {i}. {s['name']} - {s['score']:.2f} 秒")
     print("\n")
 
@@ -42,28 +44,28 @@ def countdown():
     print(" GO!\n")
     time.sleep(0.3)
 
-if sys.platform == "win32":
-    import msvcrt
-    def getch():
-        """Windows用：Enter不要で1文字取得"""
-        return msvcrt.getch().decode()
-else:
+def getch_unix():
     import tty, termios
-    def getch():
-        """macOS/Linux用：Enter不要で1文字取得"""
-        fd = sys.stdin.fileno()
-        old = termios.tcgetattr(fd)
-        try:
-            tty.setraw(fd)
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old)
-        return ch
+    fd = sys.stdin.fileno()
+    old = termios.tcgetattr(fd)
+    try:
+        tty.setraw(fd)
+        ch = sys.stdin.read(1)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old)
+    return ch
+
+def getch_win():
+    import msvcrt
+    return msvcrt.getch().decode()
+
+def getch():
+    func = getch_win if sys.platform == "win32" else getch_unix
+    return func()
 
 def play_game():
-    letters = list(string.ascii_uppercase)
-    print("A〜Zまで順にタイプしてください！")
-    input("Enterキーでスタートします。")
+    letters = list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    input("\n <PUT ENTER TO START>")
     countdown()
     start = time.time()
     for target in letters:
@@ -76,20 +78,16 @@ def play_game():
     end = time.time()
     return end - start
 
-
 def main():
-    os.system("clear" if os.name == "posix" else "cls")
     show_title()
-    name = input("名前を入力してください: ").strip() or "PLAYER"
+    name = input("YOUR NAME? ").strip() or "PLAYER"
     print("\n")
-    score = play_game()
-    print(f"\nタイム: {score:.2f} 秒")
-    save_score(name, score)
-    print("スコアを保存しました！")
-    print("\n--- TOP 3 ---")
-    for i, s in enumerate(load_scores()[:3], start=1):
-        print(f" {i}. {s['name']} - {s['score']:.2f} 秒")
-
+    while True:
+      score = play_game()
+      print(f"\n GREAT JOB {name}! YOUR TIME IS {score:.2f} sec!")
+      save_score(name, score)
+      input("\n <PUSH ENTER TO START>")
+      show_title()
 
 if __name__ == "__main__":
     main()
