@@ -80,7 +80,7 @@ def play_game():
 
 def main():
     show_title()
-    name = input("YOUR NAME? ").strip() or "PLAYER"
+    name = input("YOUR NAME? ").strip().upper() or "PLAYER"
     print("\n")
     while True:
       score = play_game()
