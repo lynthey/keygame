@@ -59,9 +59,7 @@ def getch_win():
     import msvcrt
     return msvcrt.getch().decode()
 
-def getch():
-    func = getch_win if sys.platform == "win32" else getch_unix
-    return func()
+getch = getch_win if sys.platform == "win32" else getch_unix
 
 def play_game():
     letters = list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
