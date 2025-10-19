@@ -4,8 +4,6 @@ import os
 import random
 import string
 import sys
-import termios
-import tty
 
 SAVE_FILE = "scores.json"
 
